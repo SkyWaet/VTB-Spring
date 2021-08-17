@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="applicationProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" >
+        <property name="location" value="classpath:app.properties"/>
+    </bean>
+
+    <bean id="locale" class="config.Locales">
+        <constructor-arg name="lang" value="${language}"/>
+        <constructor-arg name="country" value="${country}"/>
+    </bean>
+
+    <bean id="financialService" class="services.impl.FinancialServiceImpl">
+        <property name="locale" ref="locale"/>
+    </bean>
+
+    <bean id="storage" class="services.impl.SetStorage">
+        <property name="limit" value="10"/>
+        <property name="locale" ref="locale"/>
+    </bean>
+
+    <bean id="HR" class="services.impl.HRServiceImpl">
+        <property name="locales" ref="locale"/>
+    </bean>
+
+    <bean id="CS" class="services.impl.CustomerServiceImpl">
+        <property name="locales" ref="locale"/>
+    </bean>
+    <bean id="salesService" class="services.impl.SalesServiceImpl">
+        <constructor-arg name="storage" ref="storage"/>
+        <constructor-arg name="financialService" ref="financialService"/>
+    </bean>
+
+    <bean id="logger" class="services.impl.ConsoleLogger">
+        <property name="locales" ref="locale"/>
+    </bean>
+
+    <bean id="shop" class="shop.Shop">
+        <constructor-arg name="customerService" ref="CS"/>
+        <constructor-arg name="hrService" ref="HR"/>
+        <constructor-arg name="storage" ref="storage"/>
+        <constructor-arg name="salesService" ref="salesService"/>
+    </bean>
+
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename">
+            <value>l10n</value>
+        </property>
+    </bean>
+
+</beans>
